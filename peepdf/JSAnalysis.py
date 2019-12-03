@@ -37,7 +37,7 @@ try:
     import v8py
 
     class Global(v8py.Class):
-        evalcode = ''
+        evalCode = ''
 
         def evalOverride(self, expression):
             self.evalCode += '\n\n// New evaluated code\n' + expression

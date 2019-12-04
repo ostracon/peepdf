@@ -3,7 +3,7 @@
 #    http://peepdf.eternal-todo.com
 #    By Jose Miguel Esparza <jesparza AT eternal-todo.com>
 #
-#    Copyright (C) 2011-2017 Jose Miguel Esparza
+#    Copyright (C) 2011-2018 Jose Miguel Esparza
 #
 #    This file is part of peepdf.
 #
@@ -32,10 +32,6 @@ import re
 import sys
 import six
 import codecs
-if six.PY3:
-    import builtins
-else:
-    import __builtin__ as builtins
 
 import peepdf.aes as AES
 from peepdf.PDFUtils import (
@@ -46,9 +42,7 @@ from peepdf.PDFCrypto import (
     RC4, computeObjectKey, computeUserPass, isUserPass, isOwnerPass,
     computeEncryptionKey, computeOwnerPass
 )
-from peepdf.JSAnalysis import (
-    isJavascript, analyseJS
-)
+from peepdf.JSAnalysis import isJavascript, analyseJS
 from peepdf.PDFFilters import decodeStream, encodeStream
 
 MAL_ALL = 1
@@ -4326,7 +4320,7 @@ class PDFBody:
                                 self.setObject(compressedId, compressedObject, offset)
                             del(compressedObjectsDict)
         for id in self.referencedJSObjects:
-            if id not in self.containingJS:
+            if id not in self.containingJS and id in self.objects:
                 object = self.objects[id].getObject()
                 if object is None:
                     errorMessage = 'Object is None'
@@ -5435,7 +5429,7 @@ class PDFFile:
                     return (-1, errorMessage)
         else:
             encryptMetadata = True
-        if six.PY3 and type(password) == str:
+        if six.PY3 and isinstance(password, str):
             password = password.encode('latin-1')
             dictO = dictO.encode('latin-1')
             fileId = fileId.encode('latin-1')
@@ -7000,10 +6994,10 @@ class PDFParser:
                     self.fileParts.append(fileContent)
                 else:
                     sys.exit(errorMessage)
-     
+
         if six.PY3:
             fileContent = fileContent.decode('latin-1')
-            
+
         pdfFile.setUpdates(len(self.fileParts) - 1)
         # Getting the body, cross reference table and trailer of each part of the file
         for i in range(len(self.fileParts)):
@@ -7029,7 +7023,7 @@ class PDFParser:
                 bodyOffset = len(self.fileParts[i-1])
 
             # Getting the content for each section
-            if six.PY3 and builtins.type(content) == bytes:
+            if six.PY3 and isinstance(content, bytes):
                 content = content.decode('latin-1')
             bodyContent, xrefContent, trailerContent = self.parsePDFSections(content, forceMode, looseMode)
             if xrefContent is not None:
@@ -7057,7 +7051,7 @@ class PDFParser:
             if rawIndirectObjects != []:
                 for j in range(len(rawIndirectObjects)):
                     relativeOffset = 0
-                   
+
                     auxContent = bodyContent
                     rawObject = rawIndirectObjects[j][0]
                     objectHeader = rawIndirectObjects[j][1]

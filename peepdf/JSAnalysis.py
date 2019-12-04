@@ -3,7 +3,7 @@
 #    http://peepdf.eternal-todo.com
 #    By Jose Miguel Esparza <jesparza AT eternal-todo.com>
 #
-#    Copyright (C) 2011-2017 Jose Miguel Esparza
+#    Copyright (C) 2011-2018 Jose Miguel Esparza
 #
 #    This file is part of peepdf.
 #
@@ -34,9 +34,9 @@ import traceback
 from peepdf.PDFUtils import unescapeHTMLEntities, escapeString
 
 try:
-    import PyV8
+    import v8py
 
-    class Global(PyV8.JSClass):
+    class Global(v8py.Class):
         evalCode = ''
 
         def evalOverride(self, expression):
@@ -91,7 +91,9 @@ def analyseJS(code, context=None, manualAnalysis=False):
 
         if code is not None and JS_MODULE and not manualAnalysis:
             if context is None:
-                context = PyV8.JSContext(Global())
+                if JS_MODULE:
+                    context = v8py.Context(Global())
+           
             context.enter()
             # Hooking the eval function
             context.eval('eval=evalOverride')
@@ -196,11 +198,14 @@ def isJavascript(content):
     length = len(content)
     smallScriptLength = 100
 
+    if content.startswith("/GS1 gs"):
+        return False
+
     if re.findall(reJSscript, content, re.DOTALL | re.IGNORECASE):
         return True
 
-    _, count = re.subn(bad_chars_re, "", content, int(len(content) / 10))
-    if int(count) == int(len(content) / 10):
+    _, count = re.subn(bad_chars_re, "", content, len(content) // 10)
+    if int(count) == len(content) // 10:
         return False
 
     for string in jsStrings:

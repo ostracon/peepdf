@@ -33,6 +33,9 @@ import hashlib
 import traceback
 import jsbeautifier
 
+# Return a string on Py2 & Py3.
+from builtins import input
+
 from peepdf.PDFUtils import (
     getBytesFromFile, countArrayElements, clearScreen, hexToString,
     escapeRegExpString, vtcheck, countNonPrintableChars
@@ -54,9 +57,9 @@ try:
 except:
     COLORIZED_OUTPUT = False
 try:
-    import PyV8
+    import v8py
     JS_MODULE = True
-except ImportError as e:
+except:
     JS_MODULE = False
 try:
     import pylibemu
@@ -1744,7 +1747,7 @@ class PDFConsole(cmd.Cmd):
         content = ''
         validTypes = ['variable', 'file', 'object', 'string']
         if not JS_MODULE:
-            message = '*** Error: PyV8 is not installed!!'
+            message = '*** Error: v8py is not installed!!'
             self.log_output('js_analyse ' + argv, message)
             return False
         args = self.parseArgs(argv)
@@ -2065,7 +2068,7 @@ class PDFConsole(cmd.Cmd):
         error = ''
         content = ''
         if not JS_MODULE:
-            message = '*** Error: PyV8 is not installed!!'
+            message = '*** Error: v8py is not installed!!'
             self.log_output('js_eval ' + argv, message)
             return False
         validTypes = ['variable', 'file', 'object', 'string']
@@ -2173,7 +2176,7 @@ class PDFConsole(cmd.Cmd):
             context = self.javaScriptContexts['global']
         else:
             # Using the global context to hook the eval fucntion and other definitions
-            context = PyV8.JSContext(Global())
+            context = v8py.Context(Global())
             self.javaScriptContexts['global'] = context
         context.enter()
         # Hooking the eval function
@@ -2461,7 +2464,7 @@ class PDFConsole(cmd.Cmd):
     def do_js_vars(self, argv):
         varName = None
         if not JS_MODULE:
-            message = '*** Error: PyV8 is not installed!!'
+            message = '*** Error: v8py is not installed!!'
             self.log_output('js_vars ' + argv, message)
             return False
         args = self.parseArgs(argv)
@@ -2887,7 +2890,7 @@ class PDFConsole(cmd.Cmd):
             self.pdfFile = None
         self.log_output('open ' + argv, message)
         if not JS_MODULE:
-            print(('Warning: PyV8 is not installed!!' + newLine))
+            print(('Warning: v8py is not installed!!' + newLine))
         if self.pdfFile is not None:
             self.do_info('')
 

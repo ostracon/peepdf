@@ -34,9 +34,9 @@ import traceback
 from peepdf.PDFUtils import unescapeHTMLEntities, escapeString
 
 try:
-    import PyV8
+    import v8py
 
-    class Global(PyV8.JSClass):
+    class Global(v8py.Class):
         evalCode = ''
 
         def evalOverride(self, expression):
@@ -91,7 +91,9 @@ def analyseJS(code, context=None, manualAnalysis=False):
 
         if code is not None and JS_MODULE and not manualAnalysis:
             if context is None:
-                context = PyV8.JSContext(Global())
+                if JS_MODULE:
+                    context = v8py.Context(Global())
+           
             context.enter()
             # Hooking the eval function
             context.eval('eval=evalOverride')

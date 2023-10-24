@@ -977,6 +977,9 @@ class PDFArray(PDFObject):
             else:
                 raise Exception(ret[1])
 
+    def getURIs(self):
+        return self.uriList
+
     def update(self, decrypt=False):
         '''
             Updates the object after some modification has occurred
@@ -1006,6 +1009,9 @@ class PDFArray(PDFObject):
                     self.JSCode += element.getJSCode()
                     self.unescapedBytes += element.getUnescapedBytes()
                     self.urlsFound += element.getURLs()
+                if element.containsURIs():
+                    self.uriList += element.getURIs()
+                #   self.uriList.extend(element.getURIs())
                 if element.isFaulty():
                     for error in element.getErrors():
                         self.addError('Children element contains errors: ' + error)
@@ -7271,7 +7277,7 @@ class PDFParser:
             pdfIndirectObject.setObject(object)
             ret = self.readSymbol(rawIndirectObject, 'endobj', False)
             pdfIndirectObject.setSize(self.charCounter)
-        except:
+        except Exception as e:
             errorMessage = 'Unspecified parsing error'
             pdfFile.addError(errorMessage)
             return (-1, errorMessage)
